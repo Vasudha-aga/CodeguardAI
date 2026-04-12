@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Lightbulb, TrendingUp, Shield, Zap, Code, CheckCircle, AlertTriangle, FileWarning } from 'lucide-react';
 import DashboardLayout from './DashboardLayout';
-import { useNavigate } from 'react-router-dom';
 export default function Recommendations() {
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
 useEffect(() => {
     // Check if user is logged in

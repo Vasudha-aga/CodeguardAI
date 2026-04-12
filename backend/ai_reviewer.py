@@ -1,6 +1,6 @@
 import ast
 import re
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 class AICodeReviewer:
     """
@@ -10,7 +10,7 @@ class AICodeReviewer:
     
     def __init__(self):
         self.code = ""
-        self.tree = None
+        self.tree: Optional[ast.AST] = None
         self.bugs = []
     
     def review(self, code: str, bugs: List[Dict]) -> Dict[str, Any]:
@@ -49,6 +49,8 @@ class AICodeReviewer:
     
     def explain_code(self) -> str:
         """Generate high-level explanation of what the code does"""
+        if self.tree is None:
+            return ""
         functions = [node.name for node in ast.walk(self.tree) if isinstance(node, ast.FunctionDef)]
         classes = [node.name for node in ast.walk(self.tree) if isinstance(node, ast.ClassDef)]
         imports = []
@@ -191,7 +193,10 @@ class AICodeReviewer:
         issues = []
         
         # Check for separation of concerns
-        functions = [node for node in ast.walk(self.tree) if isinstance(node, ast.FunctionDef)]
+        if self.tree is None:
+            functions = []
+        else:
+            functions = [node for node in ast.walk(self.tree) if isinstance(node, ast.FunctionDef)]
         if len(functions) == 1 and len(self.code.split('\n')) > 30:
             issues.append(
                 "Single large function detected. Consider separating concerns into multiple functions "
@@ -202,13 +207,14 @@ class AICodeReviewer:
         has_io = False
         has_logic = False
         
-        for node in ast.walk(self.tree):
-            if isinstance(node, ast.Call):
-                if isinstance(node.func, ast.Name):
-                    if node.func.id in ['print', 'input', 'open']:
-                        has_io = True
-                    if node.func.id in ['map', 'filter', 'sorted']:
-                        has_logic = True
+        if self.tree is not None:
+            for node in ast.walk(self.tree):
+                if isinstance(node, ast.Call):
+                    if isinstance(node.func, ast.Name):
+                        if node.func.id in ['print', 'input', 'open']:
+                            has_io = True
+                        if node.func.id in ['map', 'filter', 'sorted']:
+                            has_logic = True
         
         if has_io and has_logic and len(functions) < 3:
             issues.append(
@@ -217,10 +223,12 @@ class AICodeReviewer:
             )
         
         # Check for hardcoded values
-        hardcoded_strings = [
-            node for node in ast.walk(self.tree)
-            if isinstance(node, ast.Constant) and isinstance(node.value, str) and len(node.value) > 10
-        ]
+        hardcoded_strings = []
+        if self.tree is not None:
+            hardcoded_strings = [
+                node for node in ast.walk(self.tree)
+                if isinstance(node, ast.Constant) and isinstance(node.value, str) and len(node.value) > 10
+            ]
         if len(hardcoded_strings) > 3:
             issues.append(
                 "Multiple hardcoded string values found. Consider moving configuration "
@@ -228,12 +236,15 @@ class AICodeReviewer:
             )
         
         # Check for missing error handling
-        has_try = any(isinstance(node, ast.Try) for node in ast.walk(self.tree))
-        has_risky_operations = any(
-            isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and 
-            node.func.id in ['open', 'int', 'float']
-            for node in ast.walk(self.tree)
-        )
+        has_try = False
+        has_risky_operations = False
+        if self.tree is not None:
+            has_try = any(isinstance(node, ast.Try) for node in ast.walk(self.tree))
+            has_risky_operations = any(
+                isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and 
+                node.func.id in ['open', 'int', 'float']
+                for node in ast.walk(self.tree)
+            )
         
         if has_risky_operations and not has_try:
             issues.append(
@@ -257,24 +268,30 @@ class AICodeReviewer:
             positives.append("✓ Uses type hints for better code clarity")
         
         # Check for error handling
-        has_try = any(isinstance(node, ast.Try) for node in ast.walk(self.tree))
+        has_try = False
+        if self.tree is not None:
+            has_try = any(isinstance(node, ast.Try) for node in ast.walk(self.tree))
         if has_try:
             positives.append("✓ Implements error handling")
         
         # Check for constants
-        has_constants = any(
-            isinstance(node, ast.Assign) and 
-            all(isinstance(t, ast.Name) and t.id.isupper() for t in node.targets)
-            for node in ast.walk(self.tree)
-        )
+        has_constants = False
+        if self.tree is not None:
+            has_constants = any(
+                isinstance(node, ast.Assign) and 
+                all(isinstance(t, ast.Name) and t.id.isupper() for t in node.targets)
+                for node in ast.walk(self.tree)
+            )
         if has_constants:
             positives.append("✓ Uses named constants for better maintainability")
         
         # Check for list comprehensions (pythonic)
-        has_comprehensions = any(
-            isinstance(node, (ast.ListComp, ast.DictComp))
-            for node in ast.walk(self.tree)
-        )
+        has_comprehensions = False
+        if self.tree is not None:
+            has_comprehensions = any(
+                isinstance(node, (ast.ListComp, ast.DictComp))
+                for node in ast.walk(self.tree)
+            )
         if has_comprehensions:
             positives.append("✓ Uses Pythonic constructs like comprehensions")
         

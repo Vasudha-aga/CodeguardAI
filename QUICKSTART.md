@@ -106,3 +106,13 @@ Code → POST /analyze → Backend Analysis
 ---
 
 **Start analyzing code! 🚀**
+
+
+<!-- cd backend
+pip install -r requirements.txt
+python main.py
+
+
+cd frontend
+npm install
+npm run dev -->

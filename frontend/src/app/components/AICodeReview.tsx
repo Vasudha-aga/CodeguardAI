@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, CheckCircle, AlertTriangle, TrendingUp, Code, Shield, Zap, FileWarning } from 'lucide-react';
 import DashboardLayout from './DashboardLayout';
-import { useNavigate } from 'react-router-dom';
 
 export default function AICodeReview() {
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
 useEffect(() => {
     // Check if user is logged in
