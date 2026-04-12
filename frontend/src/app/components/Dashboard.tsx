@@ -8,7 +8,8 @@ import {
   Code,
   Bug,
   Zap,
-  ArrowRight
+  ArrowRight,
+  FileCode  // ADD THIS LINE
 } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import DashboardLayout from './DashboardLayout';
@@ -74,6 +75,17 @@ useEffect(() => {
         <div>
           <h1 className="text-3xl md:text-4xl text-white mb-2">Dashboard Overview</h1>
           <p className="text-gray-400">Monitor your code quality and analysis results</p>
+          {analysisData && (
+            <div className="glass-card p-4 rounded-xl mb-6">
+            <div className="flex items-center gap-3">
+            <FileCode className="w-5 h-5 text-indigo-400" />
+            <span className="text-gray-400">Latest Analysis Language:</span>
+            <span className="px-3 py-1 bg-indigo-600 text-white rounded-full text-sm font-medium">
+            {analysisData.language || 'Python'}
+            </span>
+            </div>
+            </div>
+          )}
         </div>
 
         {/* Stats Grid */}

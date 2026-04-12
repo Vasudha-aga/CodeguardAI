@@ -54,7 +54,7 @@ const handleAnalyze = async () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code , language: selectedLanguage}),
       });
 
       const data = await response.json();
@@ -86,7 +86,8 @@ const handleAnalyze = async () => {
         quality_score: data.quality_score,
         bugs: data.bugs,
         ai_review: data.ai_review,
-        code: code  // SAVE CODE HERE
+        code: code, // SAVE CODE HERE
+        language: selectedLanguage  
       });
 
       localStorage.setItem(userHistoryKey, JSON.stringify(history));
@@ -220,6 +221,9 @@ const handleAnalyze = async () => {
               className="bg-[#0B0F1A] border border-blue-500/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
             >
               <option value="python">Python</option>
+              <option value="javascript">JavaScript</option>
+              <option value="java">Java</option>
+              <option value="cpp">C++</option>
             </select>
           </div>
 

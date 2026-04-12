@@ -27,7 +27,7 @@ useEffect(() => {
       const enhancedHistory = parsedHistory.map((item: any, index: number) => ({
         id: index + 1,
         ...item,
-        language: 'Python',
+        language: item.language || 'Python',
         linesOfCode: item.summary?.lines_analyzed || 0,
         issues: (item.summary?.critical || 0) + (item.summary?.high || 0) + (item.summary?.medium || 0),
         critical: item.summary?.critical || 0,
