@@ -15,7 +15,7 @@ class PythonDetector(BaseDetector):
     def get_language(self) -> str:
         return "python"
     
-    def _parse_code(self, code: str):
+    def _parse_code(self, code: str): # type: ignore
         """Parse Python code into AST"""
         return ast.parse(code)
     
@@ -56,7 +56,7 @@ class PythonDetector(BaseDetector):
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef):
                 if hasattr(node, 'end_lineno'):
-                    line_count = node.end_lineno - node.lineno
+                    line_count = node.end_lineno - node.lineno # type: ignore
                     if line_count > 15:
                         self.bugs.append({
                             "type": "Long Function",
@@ -107,7 +107,7 @@ class PythonDetector(BaseDetector):
         for node in ast.walk(tree):
             # SQL Injection
             if isinstance(node, ast.Call):
-                if hasattr(node.func, 'attr') and node.func.attr == 'execute':
+                if hasattr(node.func, 'attr') and node.func.attr == 'execute': # type: ignore
                     for arg in node.args:
                         if isinstance(arg, ast.BinOp) and isinstance(arg.op, ast.Add):
                             self.bugs.append({
