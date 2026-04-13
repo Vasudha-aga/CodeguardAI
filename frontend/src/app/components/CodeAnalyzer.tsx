@@ -201,6 +201,19 @@ const handleAnalyze = async () => {
     // Save PDF
     doc.save(`CodeGuard_Analysis_${new Date().getTime()}.pdf`);
   };
+  const getPlaceholderCode = (language: string) => {
+  const placeholders: { [key: string]: string } = {
+    python: `# Paste your Python code here...\n\ndef example_function():\n    print("Hello, CodeGuard AI!")`,
+    
+    javascript: `// Paste your JavaScript code here...\n\nfunction exampleFunction() {\n    console.log("Hello, CodeGuard AI!");\n}`,
+    
+    java: `// Paste your Java code here...\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, CodeGuard AI!");\n    }\n}`,
+    
+    cpp: `// Paste your C++ code here...\n\n#include <iostream>\n\nint main() {\n    std::cout << "Hello, CodeGuard AI!" << std::endl;\n    return 0;\n}`
+  };
+  
+  return placeholders[language] || placeholders.python;
+};
 
   return (
     <DashboardLayout>
@@ -269,7 +282,7 @@ const handleAnalyze = async () => {
               <textarea
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder={`# Paste your ${selectedLanguage} code here...\n\ndef example_function():\n    print("Hello, CodeGuard AI!")`}
+                placeholder={getPlaceholderCode(selectedLanguage)}
                 className="w-full h-96 bg-[#0B0F1A] border border-blue-500/20 rounded-lg p-4 text-gray-300 font-mono text-sm resize-none focus:outline-none focus:border-blue-500 transition-colors"
               />
             </div>

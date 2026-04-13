@@ -9,8 +9,9 @@ export default function History() {
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [selectedAnalysis, setSelectedAnalysis] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [selectedLanguageFilter, setSelectedLanguageFilter] = useState('all');
 
-useEffect(() => {
+  useEffect(() => {
     // Check if user is logged in
     const currentUserData = localStorage.getItem('codeguard_current_user');
     if (!currentUserData) {
@@ -27,8 +28,8 @@ useEffect(() => {
       const enhancedHistory = parsedHistory.map((item: any, index: number) => ({
         id: index + 1,
         ...item,
-        language: item.language || 'Python',
-        linesOfCode: item.summary?.lines_analyzed || 0,
+        language: item.language || 'python',
+        linesOfCode: item.code ? item.code.split('\n').length : 0,
         issues: (item.summary?.critical || 0) + (item.summary?.high || 0) + (item.summary?.medium || 0),
         critical: item.summary?.critical || 0,
         high: item.summary?.high || 0,
@@ -40,6 +41,11 @@ useEffect(() => {
       setHistoryData(enhancedHistory);
     }
   }, []);
+
+  // Filter history by selected language
+  const filteredHistory = selectedLanguageFilter === 'all' 
+    ? historyData 
+    : historyData.filter(item => item.language.toLowerCase() === selectedLanguageFilter.toLowerCase());
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-green-400';
@@ -124,15 +130,21 @@ useEffect(() => {
 
   const handleDelete = (id: number) => {
     if (confirm('Are you sure you want to delete this analysis?')) {
+      const currentUserData = localStorage.getItem('codeguard_current_user');
+      if (!currentUserData) return;
+      
+      const currentUser = JSON.parse(currentUserData);
       const updatedHistory = historyData.filter(item => item.id !== id);
       setHistoryData(updatedHistory);
+      
       // Update localStorage
-      localStorage.setItem('analysisHistory', JSON.stringify(updatedHistory));
+      const userHistoryKey = `history_${currentUser.id}`;
+      localStorage.setItem(userHistoryKey, JSON.stringify(updatedHistory));
     }
   };
 
   const handleExportAll = () => {
-    if (historyData.length === 0) {
+    if (filteredHistory.length === 0) {
       alert('No data to export');
       return;
     }
@@ -155,12 +167,12 @@ useEffect(() => {
     yPos += 15;
 
     // Summary Stats
-    const avgScore = Math.round(historyData.reduce((acc, item) => acc + item.quality_score, 0) / historyData.length);
-    const totalIssues = historyData.reduce((acc, item) => acc + item.issues, 0);
+    const avgScore = Math.round(filteredHistory.reduce((acc, item) => acc + item.quality_score, 0) / filteredHistory.length);
+    const totalIssues = filteredHistory.reduce((acc, item) => acc + item.issues, 0);
 
     doc.setFontSize(14);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Total Analysis: ${historyData.length}`, 20, yPos);
+    doc.text(`Total Analysis: ${filteredHistory.length}`, 20, yPos);
     yPos += 8;
     doc.text(`Average Score: ${avgScore}/100`, 20, yPos);
     yPos += 8;
@@ -172,7 +184,7 @@ useEffect(() => {
     doc.text("Analysis History:", 20, yPos);
     yPos += 10;
 
-    historyData.forEach((item, index) => {
+    filteredHistory.forEach((item, index) => {
       if (yPos > pageHeight - 40) {
         doc.addPage();
         yPos = 20;
@@ -195,16 +207,16 @@ useEffect(() => {
     doc.save(`CodeGuard_Complete_History_${new Date().getTime()}.pdf`);
   };
 
-  const stats = historyData.length > 0 ? {
-    totalAnalysis: historyData.length,
-    averageScore: Math.round(historyData.reduce((acc, item) => acc + item.quality_score, 0) / historyData.length),
-    totalIssues: historyData.reduce((acc, item) => acc + item.issues, 0),
-    totalLines: historyData.reduce((acc, item) => acc + item.linesOfCode, 0),
+  const stats = filteredHistory.length > 0 ? {
+    totalAnalysis: filteredHistory.length,
+    avgScore: Math.round(filteredHistory.reduce((acc, item) => acc + item.quality_score, 0) / filteredHistory.length),
+    totalIssues: filteredHistory.reduce((acc, item) => acc + item.issues, 0),
+    totalLines: filteredHistory.reduce((acc, item) => acc + item.linesOfCode, 0)
   } : {
-    totalAnalyses: 0,
-    averageScore: 0,
+    totalAnalysis: 0,
+    avgScore: 0,
     totalIssues: 0,
-    totalLines: 0,
+    totalLines: 0
   };
 
   return (
@@ -217,109 +229,113 @@ useEffect(() => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="glass-card p-4 rounded-xl">
-            <div className="flex items-center gap-2 mb-2">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="glass-card p-6 rounded-xl">
+            <div className="flex items-center gap-3 mb-2">
               <HistoryIcon className="w-5 h-5 text-blue-400" />
-              <p className="text-gray-400 text-sm">Total Analysis</p>
+              <span className="text-gray-400 text-sm">Total Analysis</span>
             </div>
-            <p className="text-2xl text-white">{stats.totalAnalysis || '—'}</p>
+            <p className="text-3xl text-white font-semibold">{stats.totalAnalysis}</p>
           </div>
-          <div className="glass-card p-4 rounded-xl">
-            <div className="flex items-center gap-2 mb-2">
+
+          <div className="glass-card p-6 rounded-xl">
+            <div className="flex items-center gap-3 mb-2">
               <TrendingUp className="w-5 h-5 text-green-400" />
-              <p className="text-gray-400 text-sm">Avg Score</p>
+              <span className="text-gray-400 text-sm">Avg Score</span>
             </div>
-            <p className={`text-2xl ${stats.averageScore ? getScoreColor(stats.averageScore) : 'text-white'}`}>
-              {stats.averageScore ? `${stats.averageScore}/100` : '—'}
-            </p>
+            <p className="text-3xl text-green-400 font-semibold">{stats.avgScore}/100</p>
           </div>
-          <div className="glass-card p-4 rounded-xl">
-            <div className="flex items-center gap-2 mb-2">
+
+          <div className="glass-card p-6 rounded-xl">
+            <div className="flex items-center gap-3 mb-2">
               <FileCode className="w-5 h-5 text-purple-400" />
-              <p className="text-gray-400 text-sm">Total Lines</p>
+              <span className="text-gray-400 text-sm">Total Lines</span>
             </div>
-            <p className="text-2xl text-white">{stats.totalLines ? stats.totalLines.toLocaleString() : '—'}</p>
+            <p className="text-3xl text-white font-semibold">{stats.totalLines}</p>
           </div>
-          <div className="glass-card p-4 rounded-xl">
-            <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-5 h-5 text-yellow-400" />
-              <p className="text-gray-400 text-sm">Issues Found</p>
+
+          <div className="glass-card p-6 rounded-xl">
+            <div className="flex items-center gap-3 mb-2">
+              <Download className="w-5 h-5 text-yellow-400" />
+              <span className="text-gray-400 text-sm">Issues Found</span>
             </div>
-            <p className="text-2xl text-white">{stats.totalIssues || '—'}</p>
+            <p className="text-3xl text-white font-semibold">{stats.totalIssues}</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="glass-card p-4 rounded-xl">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <Filter className="w-5 h-5 text-gray-400" />
-              <select 
-                value={selectedFilter}
-                onChange={(e) => setSelectedFilter(e.target.value)}
-                className="bg-[#0B0F1A] border border-blue-500/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
-              >
-                <option value="all">All Languages</option>
-                <option value="python">Python</option>
-              </select>
-            </div>
+        <div className="glass-card p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Filter className="w-5 h-5 text-gray-400" />
+            <select 
+              value={selectedLanguageFilter}
+              onChange={(e) => setSelectedLanguageFilter(e.target.value)}
+              className="px-4 py-2 bg-[#0B0F1A] border border-blue-500/30 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+            >
+              <option value="all">All Languages</option>
+              <option value="python">Python</option>
+              <option value="javascript">JavaScript</option>
+              <option value="java">Java</option>
+              <option value="cpp">C++</option>
+            </select>
+          </div>
 
-            <div className="flex items-center gap-3">
-              <select 
-                value={selectedPeriod}
-                onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="bg-[#0B0F1A] border border-blue-500/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
-              >
-                <option value="7">Last 7 days</option>
-                <option value="30">Last 30 days</option>
-                <option value="90">Last 90 days</option>
-                <option value="all">All time</option>
-              </select>
-              <button 
-                onClick={handleExportAll}
-                className="gradient-button px-4 py-2 rounded-lg text-white flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Export
-              </button>
-            </div>
+          <div className="flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-gray-400" />
+            <select 
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="px-4 py-2 bg-[#0B0F1A] border border-blue-500/30 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+            >
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="all">All time</option>
+            </select>
+
+            <button 
+              onClick={handleExportAll}
+              className="gradient-button px-4 py-2 rounded-lg text-white flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </button>
           </div>
         </div>
 
         {/* History Table */}
-        {historyData.length > 0 ? (
+        {filteredHistory.length > 0 ? (
           <div className="glass-card rounded-xl overflow-hidden">
-            {/* Desktop View */}
+            {/* Desktop Table */}
             <div className="hidden lg:block overflow-x-auto">
               <table className="w-full">
-                <thead>
-                  <tr className="border-b border-blue-500/20">
-                    <th className="text-left p-4 text-gray-400">Date & Time</th>
-                    <th className="text-left p-4 text-gray-400">Language</th>
-                    <th className="text-right p-4 text-gray-400">Lines</th>
-                    <th className="text-right p-4 text-gray-400">Issues</th>
-                    <th className="text-right p-4 text-gray-400">Score</th>
-                    <th className="text-right p-4 text-gray-400">Actions</th>
+                <thead className="bg-[#0B0F1A] border-b border-blue-500/20">
+                  <tr>
+                    <th className="text-left p-4 text-gray-400 font-medium">Date & Time</th>
+                    <th className="text-left p-4 text-gray-400 font-medium">Language</th>
+                    <th className="text-left p-4 text-gray-400 font-medium">Lines</th>
+                    <th className="text-left p-4 text-gray-400 font-medium">Issues</th>
+                    <th className="text-right p-4 text-gray-400 font-medium">Score</th>
+                    <th className="text-right p-4 text-gray-400 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {historyData.map((item) => (
+                  {filteredHistory.map((item) => (
                     <tr key={item.id} className="border-b border-blue-500/10 hover:bg-blue-500/5 transition-colors">
                       <td className="p-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 text-gray-300">
                           <Calendar className="w-4 h-4 text-gray-500" />
-                          <span className="text-gray-300 text-sm">{item.date}</span>
+                          {item.date}
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-sm">
+                        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">
                           {item.language}
                         </span>
                       </td>
-                      <td className="p-4 text-right text-gray-300">{item.linesOfCode}</td>
-                      <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-1">
+                      <td className="p-4 text-gray-300">{item.linesOfCode}</td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
                           {item.critical > 0 && (
                             <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded text-xs">
                               {item.critical}C
@@ -375,7 +391,7 @@ useEffect(() => {
 
             {/* Mobile View */}
             <div className="lg:hidden p-4 space-y-4">
-              {historyData.map((item) => (
+              {filteredHistory.map((item) => (
                 <div key={item.id} className="bg-[#0B0F1A] rounded-lg p-4 border border-blue-500/20">
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -440,7 +456,11 @@ useEffect(() => {
           <div className="glass-card p-12 rounded-xl text-center">
             <HistoryIcon className="w-16 h-16 text-gray-500 mx-auto mb-4" />
             <h3 className="text-xl text-white mb-2">No Analysis History</h3>
-            <p className="text-gray-400">Run code analysis to see your history here</p>
+            <p className="text-gray-400">
+              {selectedLanguageFilter === 'all' 
+                ? 'Run code analysis to see your history here' 
+                : `No ${selectedLanguageFilter} analysis found`}
+            </p>
           </div>
         )}
 
