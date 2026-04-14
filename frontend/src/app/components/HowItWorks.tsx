@@ -12,7 +12,7 @@ export default function HowItWorks() {
       description: 'Simply paste your code. We support multiple programming languages and frameworks.',
       details: [
         'Paste code directly into the editor',
-        'Currently supporting for Python programming language'
+        'Currently supporting for Python, JavaScript, Java and C++  programming languages'
       ]
     },
     {
