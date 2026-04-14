@@ -11,6 +11,7 @@ import BugDetection from './components/BugDetection';
 import AICodeReview from './components/AICodeReview';
 import Recommendations from './components/Recommendations';
 import History from './components/History';
+import Profile from './components/Profile';
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/ai-review" element={<AICodeReview />} />
         <Route path="/recommendations" element={<Recommendations />} />
         <Route path="/history" element={<History />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

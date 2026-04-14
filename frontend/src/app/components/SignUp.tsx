@@ -72,7 +72,8 @@ export default function SignUp() {
 
       // Redirect to dashboard
       setTimeout(() => {
-        navigate('/dashboard');
+        alert("Account created successfully! Please sign in to continue.");
+        navigate('/signin');
       }, 500);
 
     } catch (error) {

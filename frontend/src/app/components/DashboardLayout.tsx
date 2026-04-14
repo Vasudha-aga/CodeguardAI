@@ -1,32 +1,37 @@
-import React, { ReactNode } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { 
-  Shield, 
   LayoutDashboard, 
   Code, 
   Bug, 
   Sparkles, 
   Lightbulb, 
-  History, 
-  LogOut,
+  History,
+  ChevronLeft,
+  ChevronRight,
   User,
-  Menu,
-  X
+  Shield
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const handleLogout = () => {
-  localStorage.removeItem('codeguard_current_user');
-  navigate('/signin');
-};
+  useEffect(() => {
+    // Check if user is logged in
+    const userData = localStorage.getItem('codeguard_current_user');
+    if (!userData) {
+      navigate('/signin');
+      return;
+    }
+    setCurrentUser(JSON.parse(userData));
+  }, [navigate]);
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
@@ -40,100 +45,108 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen animated-bg">
-      {/* Top Header */}
-      <header className="fixed top-0 w-full z-50 glass-card border-b border-blue-500/20">
-        <div className="px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo & Menu Toggle */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden text-gray-300 hover:text-white transition-colors"
-              >
-                {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-              <Link to="/dashboard" className="flex items-center gap-2">
-                <Shield className="w-8 h-8 text-blue-500" />
-                <span className="text-xl gradient-text hidden sm:inline">CodeGuard AI</span>
-              </Link>
+    <div className="min-h-screen bg-[#0A0E1A]">
+      {/* Fixed Sidebar */}
+      <aside 
+        className={`
+          ${isCollapsed ? 'w-20' : 'w-64'} 
+          fixed left-0 top-0 h-screen
+          bg-gradient-to-b from-[#0B0F1A] to-[#1a1f2e] 
+          border-r border-blue-500/20 
+          transition-all duration-300 ease-in-out
+          flex flex-col
+          z-40
+        `}
+      >
+        {/* Logo & Header - Fixed at top */}
+        <div className="p-6 flex items-center justify-between border-b border-blue-500/20 flex-shrink-0">
+          {!isCollapsed && (
+            <div className="flex items-center gap-3">
+              <Shield className="w-8 h-8 text-blue-400" />
+              <span className="text-xl font-bold text-white">CodeGuard AI</span>
             </div>
-
-            {/* User Menu */}
-            <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-3 glass-card px-4 py-2 rounded-lg">
-                <User className="w-5 h-5 text-gray-400" />
-                <span className="text-gray-300 text-sm">Developer</span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="text-gray-400 hover:text-red-400 transition-colors"
-                title="Logout"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
+          )}
+          {isCollapsed && (
+            <Shield className="w-8 h-8 text-blue-400 mx-auto" />
+          )}
         </div>
-      </header>
 
-      {/* Sidebar */}
-      <aside className={`
-        fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 glass-card border-r border-blue-500/20
-        transform transition-transform duration-300 z-40
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0
-      `}>
-        <nav className="p-4 space-y-2 flex flex-col h-full">
-          {/* Navigation Items */}
-          <div className="flex-1 space-y-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.path);
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`
-                    flex items-center gap-3 px-4 py-3 rounded-lg transition-all
-                    ${active 
-                      ? 'nav-active text-white' 
-                      : 'text-gray-400 hover:text-white hover:bg-blue-500/10'
-                    }
-                  `}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
+        {/* Toggle Button */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-3 top-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 shadow-lg transition-colors z-50"
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
 
-          {/* Logout Button - Bottom of Sidebar */}
-          <div className="pt-4 border-t border-blue-500/20">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all w-full"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
-          </div>
+        {/* Scrollable Navigation - Middle section */}
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+            
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`
+                  flex items-center gap-3 px-4 py-3 rounded-lg transition-all
+                  ${active 
+                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                    : 'text-gray-400 hover:bg-blue-500/10 hover:text-blue-300'
+                  }
+                  ${isCollapsed ? 'justify-center' : ''}
+                `}
+                title={isCollapsed ? item.label : ''}
+              >
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                {!isCollapsed && <span className="font-medium">{item.label}</span>}
+              </Link>
+            );
+          })}
         </nav>
+
+        {/* User Profile - Fixed at bottom */}
+        <div className="p-4 border-t border-blue-500/20 flex-shrink-0">
+          <Link
+            to="/profile"
+            className={`
+              flex items-center gap-3 px-4 py-3 rounded-lg transition-all
+              ${isActive('/profile')
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'text-gray-400 hover:bg-blue-500/10 hover:text-blue-300'
+              }
+              ${isCollapsed ? 'justify-center' : ''}
+            `}
+            title={isCollapsed ? currentUser?.name || 'Profile' : ''}
+          >
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+              <User className="w-5 h-5 text-white" />
+            </div>
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">
+                  {currentUser?.name || 'Developer'}
+                </p>
+                <p className="text-xs text-gray-400 truncate">
+                  {currentUser?.email || ''}
+                </p>
+              </div>
+            )}
+          </Link>
+        </div>
       </aside>
 
-      {/* Overlay for mobile */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Main Content */}
-      <main className="pt-16 lg:pl-64 min-h-screen">
-        <div className="p-4 sm:p-6 lg:p-8">
+      {/* Main Content - with margin for sidebar */}
+      <main 
+        className={`
+          ${isCollapsed ? 'ml-20' : 'ml-64'} 
+          transition-all duration-300 ease-in-out
+          min-h-screen
+        `}
+      >
+        <div className="p-6 md:p-8 max-w-7xl mx-auto">
           {children}
         </div>
       </main>
