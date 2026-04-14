@@ -10,6 +10,7 @@ export default function CodeAnalyzer() {
   const [analyzed, setAnalyzed] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('python');
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [analysisName, setAnalysisName] = useState('');
 
 useEffect(() => {
   const currentUserData = localStorage.getItem('codeguard_current_user');
@@ -87,6 +88,7 @@ const handleAnalyze = async () => {
 
       history.push({
         id: `analysis_${Date.now()}`,
+        name: analysisName || `Analysis #${history.length + 1}`,
         timestamp: new Date().toLocaleString(),
         summary: data.summary,
         quality_score: data.quality_score,
@@ -269,7 +271,17 @@ const handleAnalyze = async () => {
             </button>
           </div>
         </div>
-
+        {/* Analysis Name Input - Add before Code Editor */}
+        <div className="glass-card p-4 rounded-xl mb-6">
+        <label className="text-gray-300 mb-2 block">Analysis Name (Optional)</label>
+        <input
+        type="text"
+        value={analysisName}
+        onChange={(e) => setAnalysisName(e.target.value)}
+        placeholder="e.g., Login Module Bug Fix, Payment Integration v2..."
+        className="w-full px-4 py-2 bg-[#0B0F1A] border border-blue-500/30 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+        />
+        </div>
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Code Editor */}

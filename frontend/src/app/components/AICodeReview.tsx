@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, CheckCircle, AlertTriangle, TrendingUp, Code, Shield, Zap, FileWarning } from 'lucide-react';
 import DashboardLayout from './DashboardLayout';
-
 export default function AICodeReview() {
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -302,11 +301,13 @@ if (!analysisData || !analysisData.ai_review) {
                       <code>{suggestion.codeExample}</code>
                     </pre>
                   </div>
-
                   {/* Removed Apply Suggestion Button */}
-                  <button className="glass-card px-4 py-2 rounded-lg text-gray-300 hover:text-white text-sm transition-colors neon-border">
-                    Learn More
-                  </button>
+                      <button
+                      onClick={() => window.open('https://docs.python.org/3/tutorial/errors.html', '_blank')}
+                      className="px-6 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors border border-blue-500/30"
+                      >
+                      Learn More
+                      </button>
                 </div>
               ))}
             </div>

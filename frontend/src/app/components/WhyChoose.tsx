@@ -235,10 +235,13 @@ export default function WhyChoose() {
                 <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
                   Join thousands of developers who have improved their code quality with CodeGuard AI
                 </p>
-                <Link to="/signup" className="gradient-button text-white px-10 py-4 rounded-lg text-lg inline-block">
-                  Start Your Free Trial
+                <Link 
+                to="/signup" 
+                className="gradient-button text-white px-10 py-4 rounded-lg text-lg inline-block"
+                >
+                Start Your Analysis
                 </Link>
-                <p className="text-gray-500 text-sm mt-4">No credit card required • 14-day free trial</p>
+                {/* <p className="text-gray-500 text-sm mt-4">No credit card required • 14-day free trial</p> */}
               </div>
             </motion.div>
           </div>

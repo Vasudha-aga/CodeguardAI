@@ -277,51 +277,69 @@ useEffect(() => {
             </div>
           )}
 
-          {/* Recent Analysis */}
-          <div className={`glass-card p-6 rounded-xl ${pieData.length > 0 ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
-            <div className="flex items-center justify-between mb-4">
+              {/* Recent Analysis - Clickable */}
+              <div className={`glass-card p-6 rounded-xl ${pieData.length > 0 ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+              <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl text-white">Recent Analysis</h3>
-              <Link to="/history" className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1">
-                View All
-                <ArrowRight className="w-4 h-4" />
+              <Link 
+              to="/history" 
+              className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
+              >
+              View All
+              <ArrowRight className="w-4 h-4" />
               </Link>
-            </div>
-            {historyData.length > 0 ? (
-              <div className="space-y-3">
-                {historyData.slice(-4).reverse().map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-[#0B0F1A] rounded-lg border border-blue-500/20">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                        <Code className="w-5 h-5 text-blue-400" />
-                      </div>
-                      <div>
-                        <h4 className="text-white">Analysis</h4>
-                        <p className="text-sm text-gray-400">{item.timestamp}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
-                        <p className="text-sm text-gray-400">Issues</p>
-                        <p className="text-white">
-                          {(item.summary?.critical || 0) + (item.summary?.high || 0) + (item.summary?.medium || 0)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-400">Score</p>
-                        <p className="text-green-400">{item.quality_score}/100</p>
-                      </div>
-                    </div>
+              </div>
+              
+              {historyData.length > 0 ? (
+                <div className="space-y-3">
+                {historyData.slice(-5).reverse().map((item, index) => (
+                  <div
+                  key={item.id || index}
+                  onClick={() => {
+                    // Load this analysis
+                    localStorage.setItem(`analysis_${JSON.parse(localStorage.getItem('codeguard_current_user') || '{}').id}`, JSON.stringify(item));
+                    window.location.href = '/analyzer';
+                  }}
+                  className="flex items-center justify-between p-4 bg-[#0B0F1A] rounded-lg border border-blue-500/20 hover:border-blue-500/40 transition-all cursor-pointer group"
+                  >
+                  <div className="flex items-center gap-3">
+                  <Code className="w-5 h-5 text-blue-400" />
+                  <div>
+                  <p className="text-white font-medium group-hover:text-blue-400 transition-colors">
+                  {item.name || `Analysis #${historyData.length - index}`}
+                  </p>
+                  <div className="flex items-center gap-3 text-sm text-gray-400 mt-1">
+                  <span>{item.timestamp}</span>
+                  <span>•</span>
+                  <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">
+                  {item.language || 'python'}
+                  </span>
+                  </div>
+                  </div>
+                  </div>
+                  <div className="text-right">
+                  <p className="text-sm text-gray-400">Issues</p>
+                  <p className="text-xl text-white">{item.issues || 0}</p>
+                  </div>
+                  <div className="text-right">
+                  <p className="text-sm text-gray-400">Score</p>
+                  <p className={`text-xl font-semibold ${
+                    item.quality_score >= 90 ? 'text-green-400' :
+                    item.quality_score >= 75 ? 'text-yellow-400' : 'text-red-400'
+                  }`}>
+                  {item.quality_score}/100
+                  </p>
+                  </div>
                   </div>
                 ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-400">
+                <FileCode className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No recent analysis</p>
+                </div>
+              )}
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <Code className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-                <p className="text-gray-400">No analysis history yet</p>
-                <p className="text-sm text-gray-500 mt-1">Start analyzing code to see results here</p>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Quick Actions */}

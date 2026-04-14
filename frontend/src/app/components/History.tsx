@@ -291,7 +291,7 @@ export default function History() {
             <option value="7">Last 7 days</option>
             <option value="30">Last 30 days</option>
             <option value="90">Last 90 days</option>
-            <option value="all">All time</option>
+            <option value="all">All time</option> 
             </select>
 
             <button 
