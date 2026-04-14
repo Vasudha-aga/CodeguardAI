@@ -3,6 +3,7 @@ import { Code, Play, CheckCircle, AlertTriangle, XCircle, FileCode, Download } f
 import DashboardLayout from './DashboardLayout';
 import jsPDF from 'jspdf';
 
+
 export default function CodeAnalyzer() {
   const [code, setCode] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
@@ -10,27 +11,32 @@ export default function CodeAnalyzer() {
   const [selectedLanguage, setSelectedLanguage] = useState('python');
   const [analysisResult, setAnalysisResult] = useState<any>(null);
 
-  useEffect(() => {
-    const currentUserData = localStorage.getItem('codeguard_current_user');
-    if (!currentUserData) return;
+useEffect(() => {
+  const currentUserData = localStorage.getItem('codeguard_current_user');
+  if (!currentUserData) return;
 
-    const currentUser = JSON.parse(currentUserData);
-    const userAnalysisKey = `analysis_${currentUser.id}`;
-    const lastAnalysis = localStorage.getItem(userAnalysisKey);
+  const currentUser = JSON.parse(currentUserData);
+  const userAnalysisKey = `analysis_${currentUser.id}`;
+  const lastAnalysis = localStorage.getItem(userAnalysisKey);
 
-    if (lastAnalysis) {
-      try {
-        const data = JSON.parse(lastAnalysis);
-        if (data.code) {
-          setCode(data.code);
-          setAnalysisResult(data);
-          setAnalyzed(true);
+  if (lastAnalysis) {
+    try {
+      const data = JSON.parse(lastAnalysis);
+      if (data.code) {
+        setCode(data.code);
+        setAnalysisResult(data);
+        setAnalyzed(true);
+        
+        // IMPORTANT: Restore language from last analysis
+        if (data.language) {
+          setSelectedLanguage(data.language);
         }
-      } catch (error) {
-        console.error('Error loading last analysis:', error);
       }
+    } catch (error) {
+      console.error('Error loading last analysis:', error);
     }
-  }, []);
+  }
+}, []);
 
 const handleAnalyze = async () => {
     if (!code.trim()) {
@@ -229,14 +235,14 @@ const handleAnalyze = async () => {
           <div className="flex items-center gap-4">
             <label className="text-gray-300">Language:</label>
             <select 
-              value={selectedLanguage}
-              onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="bg-[#0B0F1A] border border-blue-500/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(e.target.value)}
+            className="bg-[#0B0F1A] border border-blue-500/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
             >
-              <option value="python">Python</option>
-              <option value="javascript">JavaScript</option>
-              <option value="java">Java</option>
-              <option value="cpp">C++</option>
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
             </select>
           </div>
 

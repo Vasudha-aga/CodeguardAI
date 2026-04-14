@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Bug, Shield, AlertTriangle, XCircle, Filter, Search, Eye, CheckCircle as CheckIcon, EyeOff } from 'lucide-react';
 import DashboardLayout from './DashboardLayout';
 
+
 interface BugItem {
   id: number;
   title: string;
@@ -180,10 +181,10 @@ useEffect(() => {
             {/* Severity Filter */}
             <div className="flex items-center gap-2">
               <Filter className="w-5 h-5 text-gray-400" />
-              <select 
-                value={selectedSeverity}
-                onChange={(e) => setSelectedSeverity(e.target.value)}
-                className="bg-[#0B0F1A] border border-blue-500/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+              <select
+              value={selectedSeverity}
+              onChange={(e) => setSelectedSeverity(e.target.value)}
+              className="bg-[#0B0F1A] border border-blue-500/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
               >
                 <option value="all">All Severity</option>
                 <option value="critical">Critical</option>

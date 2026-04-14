@@ -3,6 +3,7 @@ import { History as HistoryIcon, Calendar, FileCode, TrendingUp, Download, Trash
 import DashboardLayout from './DashboardLayout';
 import jsPDF from 'jspdf';
 
+
 export default function History() {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedPeriod, setSelectedPeriod] = useState('30');
@@ -267,30 +268,30 @@ export default function History() {
         <div className="glass-card p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Filter className="w-5 h-5 text-gray-400" />
-            <select 
-              value={selectedLanguageFilter}
-              onChange={(e) => setSelectedLanguageFilter(e.target.value)}
-              className="px-4 py-2 bg-[#0B0F1A] border border-blue-500/30 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
-            >
-              <option value="all">All Languages</option>
-              <option value="python">Python</option>
-              <option value="javascript">JavaScript</option>
-              <option value="java">Java</option>
-              <option value="cpp">C++</option>
-            </select>
+           <select 
+           value={selectedLanguageFilter}
+           onChange={(e) => setSelectedLanguageFilter(e.target.value)}
+           className="px-4 py-2 bg-[#0B0F1A] border border-blue-500/30 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+           >
+           <option value="all">All Languages</option>
+           <option value="python">Python</option>
+           <option value="javascript">JavaScript</option>
+           <option value="java">Java</option>
+           <option value="cpp">C++</option>
+           </select>
           </div>
 
           <div className="flex items-center gap-3">
             <Calendar className="w-5 h-5 text-gray-400" />
             <select 
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="px-4 py-2 bg-[#0B0F1A] border border-blue-500/30 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className="px-4 py-2 bg-[#0B0F1A] border border-blue-500/30 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
             >
-              <option value="7">Last 7 days</option>
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 90 days</option>
-              <option value="all">All time</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="all">All time</option>
             </select>
 
             <button 
