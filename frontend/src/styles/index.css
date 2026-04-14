@@ -12,7 +12,7 @@ select option:last-child {
   border-bottom: none;
 }
 
-/* Better dropdown styling */
+/* Dropdown styling with dividers */
 select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
@@ -20,4 +20,31 @@ select {
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
   padding-right: 2.5rem;
+}
+
+/* Firefox - Option dividers */
+select option {
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 12px 16px !important;
+  margin: 0 !important;
+}
+
+select option:last-child {
+  border-bottom: none !important;
+}
+
+/* Chrome/Safari - Option styling */
+select option {
+  background-color: #0B0F1A;
+  color: white;
+  padding: 12px 16px;
+}
+
+select option:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+select option:checked {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: #60A5FA;
 }
