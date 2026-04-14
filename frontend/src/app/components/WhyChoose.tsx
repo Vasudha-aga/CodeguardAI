@@ -183,7 +183,7 @@ export default function WhyChoose() {
                       {[
                         ['AI-Powered Analysis', true, false],
                         ['Real-Time Results', true, false],
-                        ['Python Language Support', true, "Limited (Multiple Tools Required)"],
+                        ['Multi-Language Support', true, true],
                         ['Security Scanning', true, 'Basic'],
                         ['Code Quality Metrics', true, "Static only"],
                         ['Learning Recommendations', true, false],
