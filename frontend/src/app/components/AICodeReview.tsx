@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, CheckCircle, AlertTriangle, TrendingUp, Code, Shield, Zap, FileWarning } from 'lucide-react';
+import { Sparkles, TrendingUp, AlertCircle, CheckCircle, Lightbulb, ExternalLink, FileCode, Shield } from 'lucide-react';
 import DashboardLayout from './DashboardLayout';
+
 export default function AICodeReview() {
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-    // Check if user is logged in
+  useEffect(() => {
+    // Load latest analysis
     const currentUserData = localStorage.getItem('codeguard_current_user');
     if (!currentUserData) {
       setLoading(false);
@@ -14,52 +15,105 @@ useEffect(() => {
     }
 
     const currentUser = JSON.parse(currentUserData);
-
-    // Load user-specific latest analysis
     const userAnalysisKey = `analysis_${currentUser.id}`;
     const latestAnalysis = localStorage.getItem(userAnalysisKey);
-    
+
     if (latestAnalysis) {
-      try {
-        const data = JSON.parse(latestAnalysis);
-        setAnalysisData(data);
-      } catch (error) {
-        console.error('Error parsing analysis data:', error);
-      }
+      setAnalysisData(JSON.parse(latestAnalysis));
     }
     setLoading(false);
   }, []);
 
-  // If no analysis data, show prompt
+  // Dynamic Learn More links based on bug type
+  const getLearnMoreLink = (bugType: string) => {
+    const links: { [key: string]: string } = {
+      // Python
+      'Bare Except Clause': 'https://docs.python.org/3/tutorial/errors.html#handling-exceptions',
+      'Long Function': 'https://refactoring.guru/smells/long-method',
+      'Eval Usage': 'https://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html',
+      'Hardcoded Credential': 'https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html',
+      'SQL Injection': 'https://owasp.org/www-community/attacks/SQL_Injection',
+      'Unused Variable': 'https://www.python.org/dev/peps/pep-0008/#programming-recommendations',
+      
+      // JavaScript
+      'Loose Equality': 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness',
+      'Deprecated var': 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let',
+      'Console.log': 'https://eslint.org/docs/rules/no-console',
+      'Missing Semicolon': 'https://standardjs.com/rules.html#semicolons',
+      
+      // Java
+      'System.out.println': 'https://www.baeldung.com/java-system-out-println-vs-loggers',
+      'Empty Catch Block': 'https://wiki.sei.cmu.edu/confluence/display/java/ERR00-J',
+      'Magic Number': 'https://refactoring.guru/replace-magic-number-with-symbolic-constant',
+      'Long Method': 'https://refactoring.guru/smells/long-method',
+      
+      // C++
+      'Memory Leak': 'https://en.cppreference.com/w/cpp/memory',
+      'Namespace Pollution': 'https://www.learncpp.com/cpp-tutorial/using-declarations-and-using-directives/',
+      'C-style Cast': 'https://en.cppreference.com/w/cpp/language/explicit_cast',
+      'Buffer Overflow': 'https://owasp.org/www-community/vulnerabilities/Buffer_Overflow',
+      'Uninitialized Pointer': 'https://en.cppreference.com/w/cpp/language/pointer',
+      'Missing Virtual Destructor': 'https://isocpp.org/wiki/faq/virtual-functions#virtual-dtors',
+    };
+
+    // Return specific link or Google search
+    return links[bugType] || `https://www.google.com/search?q=${encodeURIComponent(bugType + ' best practices')}`;
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity.toLowerCase()) {
+      case 'critical': return 'text-red-400 bg-red-500/20 border-red-500/30';
+      case 'high': return 'text-orange-400 bg-orange-500/20 border-orange-500/30';
+      case 'medium': return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
+      case 'low': return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
+      default: return 'text-gray-400 bg-gray-500/20 border-gray-500/30';
+    }
+  };
+
+  const getSeverityIcon = (severity: string) => {
+    switch (severity.toLowerCase()) {
+      case 'critical': return <AlertCircle className="w-5 h-5 text-red-400" />;
+      case 'high': return <AlertCircle className="w-5 h-5 text-orange-400" />;
+      case 'medium': return <AlertCircle className="w-5 h-5 text-yellow-400" />;
+      default: return <CheckCircle className="w-5 h-5 text-blue-400" />;
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading analysis data...</p>
+            <Sparkles className="w-16 h-16 text-blue-400 mx-auto mb-4 animate-pulse" />
+            <p className="text-gray-400">Loading AI Review...</p>
           </div>
         </div>
       </DashboardLayout>
     );
   }
 
-if (!analysisData || !analysisData.ai_review) {
+  if (!analysisData || !analysisData.ai_review) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center max-w-md">
-            <FileWarning className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-            <h2 className="text-2xl text-white mb-2">No Analysis Data</h2>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl md:text-4xl text-white mb-2">AI Code Review</h1>
+            <p className="text-gray-400">Get intelligent insights and recommendations for your code</p>
+          </div>
+
+          <div className="glass-card p-12 rounded-xl text-center">
+            <FileCode className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+            <h3 className="text-xl text-white mb-2">No Analysis Available</h3>
             <p className="text-gray-400 mb-6">
-              Please analyze some code first to see AI-powered review and recommendations.
+              Run a code analysis first to get AI-powered recommendations
             </p>
-            <a 
+            
+            <a
               href="/analyzer"
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all cursor-pointer"
-              style={{ display: 'inline-block', textDecoration: 'none' }}
+              className="gradient-button px-6 py-3 rounded-lg text-white inline-flex items-center gap-2"
             >
-              Go to Code Analyzer
+              <Sparkles className="w-5 h-5" />
+              Start Analysis
             </a>
           </div>
         </div>
@@ -67,252 +121,173 @@ if (!analysisData || !analysisData.ai_review) {
     );
   }
 
-  const aiReview = analysisData.ai_review || {};
-  const bugs = analysisData.bugs || [];
-
-  // Extract data from backend response
-  const reviewSummary = {
-    overallScore: analysisData.quality_score || 0,
-    strengths: aiReview.positive_aspects || [],
-    improvements: aiReview.suggestions || [],
-  };
-
-  // Categorize bugs for AI insights
-  const securityBugs = bugs.filter((bug: any) => bug.category === 'Security');
-  const codeSmellBugs = bugs.filter((bug: any) => bug.category === 'Code Smell');
-
-  // Calculate scores based on bugs
-  const securityScore = Math.max(0, 100 - (securityBugs.length * 15));
-  const codeQualityScore = analysisData.quality_score || 0;
-  const performanceScore = Math.max(0, 100 - (codeSmellBugs.filter((b: any) => 
-    b.type?.includes('Complexity') || b.type?.includes('Nested')
-  ).length * 10));
-
-  const aiInsights = [
-    {
-      icon: Shield,
-      title: 'Security Analysis',
-      score: securityScore,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/20',
-      findings: securityBugs.length > 0 
-        ? securityBugs.map((bug: any) => bug.message)
-        : ['No security vulnerabilities detected', 'Code follows security best practices'],
-    },
-    {
-      icon: Zap,
-      title: 'Performance Insights',
-      score: performanceScore,
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-500/20',
-      findings: aiReview.design_issues && aiReview.design_issues.length > 0
-        ? aiReview.design_issues
-        : ['No performance issues detected', 'Code structure is optimized'],
-    },
-    {
-      icon: Code,
-      title: 'Code Quality',
-      score: codeQualityScore,
-      color: 'text-green-400',
-      bgColor: 'bg-green-500/20',
-      findings: codeSmellBugs.length > 0
-        ? codeSmellBugs.slice(0, 4).map((bug: any) => bug.message)
-        : ['Clean code structure', 'Good coding practices followed', 'Well-organized code'],
-    },
-  ];
-
-  // Create detailed suggestions from bugs
-  const detailedSuggestions = bugs
-    .filter((bug: any) => bug.severity === 'Critical' || bug.severity === 'High')
-    .map((bug: any) => ({
-      priority: bug.severity === 'Critical' ? 'high' : bug.severity.toLowerCase(),
-      category: bug.category || 'General',
-      title: bug.type || 'Code Issue',
-      description: bug.message || '',
-      impact: bug.suggestion || 'Improve code quality and reliability',
-      codeExample: `Line ${bug.line}: ${bug.message}`,
-    }));
+  const { ai_review } = analysisData;
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl md:text-4xl text-white mb-2 flex items-center gap-3">
-            <Sparkles className="w-10 h-10 text-blue-400" />
-            AI Code Review
-          </h1>
-          <p className="text-gray-400">Advanced AI-powered analysis and recommendations</p>
+          <h1 className="text-3xl md:text-4xl text-white mb-2">AI Code Review</h1>
+          <p className="text-gray-400">Intelligent analysis and personalized recommendations</p>
         </div>
 
-        {/* Overall Score Card */}
-        <div className="glass-card p-8 rounded-2xl pulse-glow">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex-1">
-              <h2 className="text-2xl text-white mb-2">Overall Code Health Score</h2>
-              <p className="text-gray-400">Based on comprehensive AI analysis of your codebase</p>
-            </div>
-            <div className="relative">
-              <svg className="w-32 h-32" viewBox="0 0 120 120">
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  fill="none"
-                  stroke="#1E293B"
-                  strokeWidth="10"
-                />
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  fill="none"
-                  stroke="url(#scoreGradient)"
-                  strokeWidth="10"
-                  strokeDasharray={`${reviewSummary.overallScore * 3.14} 314`}
-                  strokeLinecap="round"
-                  transform="rotate(-90 60 60)"
-                />
-                <defs>
-                  <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#3B82F6" />
-                    <stop offset="100%" stopColor="#7C3AED" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-4xl gradient-text">{reviewSummary.overallScore}</span>
+        {/* Overall Assessment */}
+        {ai_review.overall_assessment && (
+          <div className="glass-card p-6 rounded-xl border-l-4 border-blue-500">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Shield className="w-6 h-6 text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-xl text-white mb-2 font-semibold">Overall Assessment</h3>
+                <p className="text-gray-300 leading-relaxed">{ai_review.overall_assessment}</p>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* AI Insights Grid */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {aiInsights.map((insight, index) => {
-            const Icon = insight.icon;
-            return (
-              <div key={index} className="glass-card p-6 rounded-xl stat-card">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`w-12 h-12 rounded-lg ${insight.bgColor} flex items-center justify-center`}>
-                    <Icon className={`w-6 h-6 ${insight.color}`} />
-                  </div>
-                  <span className={`text-2xl ${insight.color}`}>{insight.score}/100</span>
-                </div>
-                <h3 className="text-xl text-white mb-4">{insight.title}</h3>
-                <ul className="space-y-2">
-                  {insight.findings.map((finding: any, idx: number) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm text-gray-400">
-                      <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
-                      <span>{finding}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Summary Sections */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Strengths */}
+        {/* Code Explanation */}
+        {ai_review.code_explanation && (
           <div className="glass-card p-6 rounded-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <FileCode className="w-6 h-6 text-purple-400" />
+              <h3 className="text-xl text-white font-semibold">Code Explanation</h3>
+            </div>
+            <p className="text-gray-300 leading-relaxed">{ai_review.code_explanation}</p>
+          </div>
+        )}
+
+        {/* Language-Specific Tips */}
+        {ai_review.language_tips && (
+          <div className="glass-card p-6 rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+            <div className="flex items-center gap-3 mb-4">
+              <Lightbulb className="w-6 h-6 text-indigo-400" />
+              <h3 className="text-xl text-white font-semibold">Language-Specific Tips</h3>
+            </div>
+            <p className="text-gray-300 leading-relaxed">{ai_review.language_tips}</p>
+          </div>
+        )}
+
+        {/* Suggestions */}
+        {ai_review.suggestions && ai_review.suggestions.length > 0 && (
+          <div className="glass-card p-6 rounded-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <TrendingUp className="w-6 h-6 text-green-400" />
+              <h3 className="text-xl text-white font-semibold">Improvement Suggestions</h3>
+            </div>
+            <div className="space-y-4">
+              {ai_review.suggestions.map((suggestion: string, index: number) => (
+                <div key={index} className="flex items-start gap-3 p-4 bg-[#0B0F1A] rounded-lg border border-green-500/20">
+                  <div className="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-green-400 text-sm font-semibold">{index + 1}</span>
+                  </div>
+                  <p className="text-gray-300 leading-relaxed flex-1">{suggestion}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Design Issues */}
+        {ai_review.design_issues && ai_review.design_issues.length > 0 && (
+          <div className="glass-card p-6 rounded-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertCircle className="w-6 h-6 text-orange-400" />
+              <h3 className="text-xl text-white font-semibold">Design Issues</h3>
+            </div>
+            <div className="space-y-3">
+              {ai_review.design_issues.map((issue: string, index: number) => (
+                <div key={index} className="flex items-start gap-3 p-4 bg-[#0B0F1A] rounded-lg border border-orange-500/20">
+                  <AlertCircle className="w-5 h-5 text-orange-400 flex-shrink-0 mt-1" />
+                  <p className="text-gray-300 leading-relaxed flex-1">{issue}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Positive Aspects */}
+        {ai_review.positive_aspects && ai_review.positive_aspects.length > 0 && (
+          <div className="glass-card p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
             <div className="flex items-center gap-3 mb-4">
               <CheckCircle className="w-6 h-6 text-green-400" />
-              <h3 className="text-xl text-white">What's Working Well</h3>
+              <h3 className="text-xl text-white font-semibold">What You're Doing Right</h3>
             </div>
-            <ul className="space-y-3">
-              {reviewSummary.strengths.map((strength: any, index: number) => (
-                <li key={index} className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">{strength}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Areas for Improvement */}
-          <div className="glass-card p-6 rounded-xl">
-            <div className="flex items-center gap-3 mb-4">
-              <AlertTriangle className="w-6 h-6 text-yellow-400" />
-              <h3 className="text-xl text-white">Areas for Improvement</h3>
-            </div>
-            <ul className="space-y-3">
-              {reviewSummary.improvements.map((improvement: any, index: number) => (
-                <li key={index} className="flex items-start gap-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                  <Sparkles className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">{improvement}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Detailed AI Recommendations - PERSONALIZED */}
-        <div className="glass-card p-6 rounded-xl">
-          <h3 className="text-2xl text-white mb-6">Personalized Recommendations for Your Code</h3>
-          
-          {detailedSuggestions.length === 0 ? (
-            <div className="text-center py-12">
-              <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-              <p className="text-xl text-white mb-2">Excellent Work!</p>
-              <p className="text-gray-400">No critical or high-priority issues found in your code.</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {detailedSuggestions.map((suggestion: any, index: number) => (
-                <div key={index} className="border border-blue-500/20 rounded-xl p-6 bg-[#0B0F1A]">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <span className={`
-                        px-3 py-1 rounded-full text-xs uppercase font-semibold
-                        ${suggestion.priority === 'high' 
-                          ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
-                          : suggestion.priority === 'medium'
-                          ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                          : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}
-                      `}>
-                        {suggestion.priority} priority
-                      </span>
-                      <span className="text-sm text-gray-400 px-3 py-1 bg-gray-800/50 rounded-full">
-                        {suggestion.category}
-                      </span>
-                    </div>
-                  </div>
-
-                  <h4 className="text-xl text-white mb-3 font-semibold">{suggestion.title}</h4>
-                  <p className="text-gray-300 mb-4 leading-relaxed">{suggestion.description}</p>
-
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <TrendingUp className="w-4 h-4 text-blue-400" />
-                      <span className="text-sm font-semibold text-blue-400">Why Fix This:</span>
-                    </div>
-                    <p className="text-gray-300 text-sm">{suggestion.impact}</p>
-                  </div>
-
-                  {/* Specific Location in Your Code */}
-                  <div className="bg-[#0E1325] rounded-lg p-4 border border-purple-500/20 mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Code className="w-4 h-4 text-purple-400" />
-                      <span className="text-sm font-semibold text-purple-400">Found in your code:</span>
-                    </div>
-                    <pre className="text-sm text-gray-300 font-mono overflow-x-auto">
-                      <code>{suggestion.codeExample}</code>
-                    </pre>
-                  </div>
-                  {/* Removed Apply Suggestion Button */}
-                      <button
-                      onClick={() => window.open('https://docs.python.org/3/tutorial/errors.html', '_blank')}
-                      className="px-6 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors border border-blue-500/30"
-                      >
-                      Learn More
-                      </button>
+            <div className="space-y-2">
+              {ai_review.positive_aspects.map((aspect: string, index: number) => (
+                <div key={index} className="flex items-center gap-3 text-gray-300">
+                  <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                  <span>{aspect}</span>
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Personalized Recommendations */}
+        {analysisData.findings && analysisData.findings.length > 0 && (
+          <div className="glass-card p-6 rounded-xl">
+            <h3 className="text-2xl text-white mb-6 font-semibold">Personalized Recommendations for Your Code</h3>
+            <div className="space-y-6">
+              {analysisData.findings.map((bug: any, index: number) => (
+                <div key={index} className="bg-[#0B0F1A] rounded-xl p-6 border border-blue-500/20 hover:border-blue-500/40 transition-all">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start gap-3">
+                      {getSeverityIcon(bug.severity)}
+                      <div>
+                        <h4 className="text-xl text-white font-semibold mb-2">{bug.type}</h4>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-sm border ${getSeverityColor(bug.severity)}`}>
+                            {bug.severity?.toUpperCase() || 'MEDIUM'} PRIORITY
+                          </span>
+                          <span className="px-3 py-1 rounded-full text-sm bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                            {bug.category || 'Code Quality'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-gray-300 mb-4 leading-relaxed">{bug.message}</p>
+
+                  {/* Why Fix This */}
+                  <div className="bg-blue-500/5 border-l-4 border-blue-500 p-4 rounded-lg mb-4">
+                    <div className="flex items-start gap-2 mb-2">
+                      <TrendingUp className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                      <h5 className="text-blue-400 font-semibold">Why Fix This:</h5>
+                    </div>
+                    <p className="text-gray-300 ml-7">{bug.suggestion || 'Improve code quality and maintainability'}</p>
+                  </div>
+
+                  {/* Location */}
+                  {bug.line && (
+                    <div className="bg-[#0A0E1A] border border-purple-500/20 p-4 rounded-lg mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileCode className="w-5 h-5 text-purple-400" />
+                        <h5 className="text-purple-400 font-semibold">Found in your code:</h5>
+                      </div>
+                      <code className="text-gray-300 font-mono text-sm block ml-7">
+                        Line {bug.line}: {bug.code || 'Check your code at this line'}
+                      </code>
+                    </div>
+                  )}
+
+                  {/* Learn More Button */}
+                  <button
+                    onClick={() => window.open(getLearnMoreLink(bug.type), '_blank')}
+                    className="px-6 py-3 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors border border-blue-500/30 flex items-center gap-2 group"
+                  >
+                    <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    Learn More About This Issue
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
