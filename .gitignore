@@ -93,3 +93,4 @@ htmlcov/
 
 # Don't ignore
 !.gitkeep
+.vercel
