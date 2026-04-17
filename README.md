@@ -1,16 +1,33 @@
 # 🛡️ CodeGuard AI - Complete Integration
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-brightgreen?style=for-the-badge&logo=vercel)](https://codeguard-ai-steel.vercel.app/)
+[![React](https://img.shields.io/badge/React-18.2.0-blue?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+
 Full-stack AI-powered code analysis with **ZERO hardcoded values**. All data updates in real-time from backend API.
+
+## 🌐 Live Demo
+
+**🚀 Try it now:** [https://codeguard-ai-steel.vercel.app/](https://codeguard-ai-steel.vercel.app/)
+
+Experience CodeGuard AI in action - analyze your code instantly with our deployed application!
+
+> **Note:** The live demo is a frontend deployment. For full functionality with real-time analysis, run the backend locally following the instructions below.
 
 ## ✨ Key Features
 
-✅ **Real-time Code Analysis** - Live bug detection and AI review
-✅ **No Hardcoded Values** - Everything loads from backend API
-✅ **Dynamic Dashboard** - Updates automatically with each analysis
-✅ **Live History** - Real-time analysis tracking
-✅ **Interactive UI** - Beautiful Figma design preserved exactly
-✅ **Smart Bug Detection** - AST-based Python code analysis
-✅ **AI Code Review** - Intelligent suggestions and recommendations
+✅ **Real-time Code Analysis** - Live bug detection and AI review  
+✅ **Multi-Language Support** - Python, JavaScript, Java, C++  
+✅ **No Hardcoded Values** - Everything loads from backend API  
+✅ **Dynamic Dashboard** - Updates automatically with each analysis  
+✅ **Live History** - Real-time analysis tracking  
+✅ **Interactive UI** - Beautiful modern dark theme  
+✅ **Smart Bug Detection** - AST-based code analysis  
+✅ **AI Code Review** - Intelligent suggestions and recommendations  
+✅ **Named Analysis** - Save and track analysis with custom names  
+✅ **PDF Export** - Download detailed analysis reports  
+✅ **Deployed & Live** - Access anywhere at [codeguard-ai-steel.vercel.app](https://codeguard-ai-steel.vercel.app/)
 
 ## 🚀 Quick Start (3 Minutes)
 
@@ -221,6 +238,41 @@ API information
 - Timestamps → real analysis times
 - Quality scores → from each analysis
 - Export to PDF → uses real data
+
+## 🌍 Deployment
+
+### Live Application
+The application is deployed at: **[https://codeguard-ai-steel.vercel.app/](https://codeguard-ai-steel.vercel.app/)**
+
+### Deploy Your Own
+
+#### Frontend (Vercel)
+1. Fork this repository
+2. Connect to Vercel
+3. Configure build settings:
+   - Framework: Vite
+   - Build Command: `cd frontend && npm install && npm run build`
+   - Output Directory: `frontend/dist`
+4. Deploy!
+
+#### Backend (Railway/Render)
+1. Create new service
+2. Connect repository
+3. Set build command:
+   ```bash
+   cd backend && pip install -r requirements.txt
+   ```
+4. Set start command:
+   ```bash
+   cd backend && python main.py
+   ```
+5. Deploy!
+
+#### Environment Variables
+Frontend `.env`:
+```env
+VITE_API_BASE_URL=https://your-backend-url.com
+```
 
 ## 🆘 Troubleshooting
 
