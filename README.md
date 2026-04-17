@@ -268,12 +268,6 @@ The application is deployed at: **[https://codeguard-ai-steel.vercel.app/](https
    ```
 5. Deploy!
 
-#### Environment Variables
-Frontend `.env`:
-```env
-VITE_API_BASE_URL=https://your-backend-url.com
-```
-
 ## 🆘 Troubleshooting
 
 ### Backend not reachable
@@ -301,20 +295,3 @@ lsof -ti:8000 | xargs kill -9
 
 # Or change port in main.py
 ```
-
-## 📝 Notes
-
-- **All data is real-time** - No mock data anywhere
-- **UI unchanged** - Exact Figma design preserved
-- **LocalStorage** - Used for cross-component communication
-- **Backend required** - Frontend needs backend to work
-
-## 🎉 Success!
-
-Aapka project ab fully integrated hai with:
-- ✅ Zero hardcoded values
-- ✅ Real-time updates everywhere
-- ✅ Original UI design intact
-- ✅ Full backend integration
-
-**Start coding and analyzing! 🚀**
