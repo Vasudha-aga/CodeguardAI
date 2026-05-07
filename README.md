@@ -258,15 +258,16 @@ The application is deployed at: **[https://codeguard-ai-steel.vercel.app/](https
 #### Backend (Railway/Render)
 1. Create new service
 2. Connect repository
-3. Set build command:
+3. Set Python runtime to `python-3.12`
+4. Set build command:
    ```bash
-   cd backend && pip install -r requirements.txt
+   cd backend && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
    ```
-4. Set start command:
+5. Set start command:
    ```bash
    cd backend && python main.py
    ```
-5. Deploy!
+6. Deploy!
 
 ## 🆘 Troubleshooting
 

@@ -2,8 +2,9 @@ services:
   - type: web_service
     name: codeguard-ai-backend
     env: python
+    runtime: python-3.12
     plan: starter
-    buildCommand: cd backend && pip install -r requirements.txt
+    buildCommand: cd backend && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
     startCommand: cd backend && python main.py
     envVars:
       - key: PYTHONUNBUFFERED
