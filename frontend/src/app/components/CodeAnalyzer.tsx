@@ -872,7 +872,7 @@ const handleAnalyze = async () => {
                 <div className="mt-6 pt-6 border-t border-blue-500/20">
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span className="text-gray-400">Lines Analyzed</span>
-                    <span className="text-white">{analysisResult.summary?.lines_analyzed || 0}</span>
+                    <span className="text-white"> {code.trim() ? code.trim().split('\n').length : 0}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-400">Analysis Time</span>

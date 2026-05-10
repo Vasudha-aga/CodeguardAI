@@ -317,10 +317,33 @@ useEffect(() => {
                   </div>
                   </div>
                   </div>
-                  <div className="text-right">
+                  {/* <div className="text-right">
                   <p className="text-sm text-gray-400">Issues</p>
                   <p className="text-xl text-white">{item.issues || 0}</p>
-                  </div>
+                  </div> */}
+                  <div className="text-right">
+  <p className="text-sm text-gray-400 mb-1">Issues</p>
+
+  <div className="flex gap-1 justify-end">
+    {(item.summary?.critical || 0) > 0 && (
+      <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded text-xs">
+        {item.summary.critical}C
+      </span>
+    )}
+
+    {(item.summary?.high || 0) > 0 && (
+      <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded text-xs">
+        {item.summary.high}H
+      </span>
+    )}
+
+    {(item.summary?.medium || 0) > 0 && (
+      <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs">
+        {item.summary.medium}M
+      </span>
+    )}
+  </div>
+</div>
                   <div className="text-right">
                   <p className="text-sm text-gray-400">Score</p>
                   <p className={`text-xl font-semibold ${
