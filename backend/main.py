@@ -146,14 +146,14 @@ def calculate_quality_score(bugs: List[Dict], code: str) -> int:
     base_score = 100
     
     for bug in bugs:
-        severity = bug.get("severity", "Low")
-        if severity == "Critical":
+        severity = bug.get("severity", "Low").lower()
+        if severity == "critical":
             base_score -= 15
-        elif severity == "High":
+        elif severity == "high":
             base_score -= 10
-        elif severity == "Medium":
+        elif severity == "medium":
             base_score -= 5
-        elif severity == "Low":
+        elif severity == "low":
             base_score -= 2
     
     # Bonus for documentation

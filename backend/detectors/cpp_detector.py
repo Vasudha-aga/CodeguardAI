@@ -150,7 +150,7 @@ class CppDetector(BaseDetector):
                         if not stripped.endswith('\\'):  # Not a multiline continuation
                             bugs.append({
                                 "type": "Missing Semicolon",
-                                "severity": "High",
+                                "severity": "high",
                                 "category": "Syntax Error",
                                 "message": f"Statement missing semicolon",
                                 "line": i,
@@ -168,7 +168,7 @@ class CppDetector(BaseDetector):
         if has_new and not has_delete:
             bugs.append({
                 "type": "Memory Leak",
-                "severity": "Critical",
+                "severity": "critical",
                 "category": "Memory Management",
                 "message": "Memory allocated with 'new' but not deallocated with 'delete'",
                 "suggestion": "Use smart pointers (unique_ptr, shared_ptr) or ensure proper delete calls",
@@ -179,7 +179,7 @@ class CppDetector(BaseDetector):
         if re.search(r'using\s+namespace\s+std\s*;', code):
             bugs.append({
                 "type": "Namespace Pollution",
-                "severity": "Medium",
+                "severity": "medium",
                 "category": "Code Smell",
                 "message": "Using 'using namespace std;' can cause name conflicts",
                 "suggestion": "Use std:: prefix or specific using declarations",
@@ -191,7 +191,7 @@ class CppDetector(BaseDetector):
         if c_cast:
             bugs.append({
                 "type": "C-style Cast",
-                "severity": "Medium",
+                "severity": "medium",
                 "category": "Code Quality",
                 "message": "C-style cast detected. Consider using C++ casts",
                 "suggestion": "Use static_cast, dynamic_cast, or reinterpret_cast",
@@ -204,7 +204,7 @@ class CppDetector(BaseDetector):
             if re.search(rf'\b{func}\s*\(', code):
                 bugs.append({
                     "type": "Buffer Overflow Risk",
-                    "severity": "Critical",
+                    "severity": "critical",
                     "category": "Security",
                     "message": f"Using dangerous function '{func}' which can cause buffer overflow",
                     "suggestion": f"Use safer alternatives like fgets, strncpy, strncat, or snprintf",
@@ -216,7 +216,7 @@ class CppDetector(BaseDetector):
         for match in pointer_declarations:
             bugs.append({
                 "type": "Uninitialized Pointer",
-                "severity": "High",
+                "severity": "high",
                 "category": "Memory Management",
                 "message": f"Pointer '{match.group(2)}' declared but not initialized",
                 "suggestion": "Initialize pointer to nullptr or valid address",
@@ -248,7 +248,7 @@ class CppDetector(BaseDetector):
             if func_lines > 30:
                 bugs.append({
                     "type": "Long Function",
-                    "severity": "Medium",
+                    "severity": "medium",
                     "category": "Code Smell",
                     "message": f"Function '{func_name}' is too long ({func_lines} lines)",
                     "suggestion": "Break down into smaller functions (recommended: < 30 lines)",
@@ -257,12 +257,39 @@ class CppDetector(BaseDetector):
         
         return bugs
     
+    # def validate_code(self, code: str) -> bool:
+    #     # Basic C++ syntax validation
+    #     return bool(re.search(r'#include|int\s+main|void|class|struct', code))
     def validate_code(self, code: str) -> bool:
-        # Basic C++ syntax validation
-        return bool(re.search(r'#include|int\s+main|void|class|struct', code))
+        # Relaxed validation for C++ snippets
+        cpp_keywords = [
+            '#include',
+            'int main',
+            'std::',
+            'cout',
+            'cin',
+            'class',
+            'struct',
+            'using namespace',
+            'vector<',
+            'string'
+        ]
+        return any(keyword in code for keyword in cpp_keywords)
     
     def _find_pattern_line(self, code: str, pattern: str) -> int:
         match = re.search(pattern, code)
         if match:
             return code[:match.start()].count('\n') + 1
         return 1
+    
+    def _parse_code(self, code: str):
+        """
+        Basic C++ syntax validation
+        """
+        if code.count('{') != code.count('}'):
+            raise SyntaxError("Unbalanced braces")
+
+        if code.count('(') != code.count(')'):
+            raise SyntaxError("Unbalanced parentheses")
+
+        return True

@@ -614,7 +614,8 @@ const handleAnalyze = async () => {
         timestamp: new Date().toLocaleString(),
         summary: data.summary,
         quality_score: data.quality_score,
-        findings: data.findings,
+        findings: data.bugs,
+        bugs: data.bugs,
         ai_review: data.ai_review,
         code: code,
         language: selectedLanguage  
@@ -696,13 +697,13 @@ const handleAnalyze = async () => {
     yPos += 15;
 
     // Detailed Findings
-    if (analysisResult.findings && analysisResult.findings.length > 0) {
+    if (analysisResult.bugs && analysisResult.bugs.length > 0) {
       doc.setFontSize(16);
       doc.text("Detailed Findings", 20, yPos);
       yPos += 10;
 
       doc.setFontSize(10);
-      analysisResult.findings.forEach((finding: any, index: number) => {
+      analysisResult.bugs.forEach((finding: any, index: number) => {
         if (yPos > pageHeight - 40) {
           doc.addPage();
           yPos = 20;
@@ -1003,11 +1004,11 @@ const handleAnalyze = async () => {
         </div>
 
         {/* Detailed Results */}
-        {analyzed && analysisResult && analysisResult.findings && analysisResult.findings.length > 0 && (
+        {analyzed && analysisResult && analysisResult.bugs && analysisResult.bugs.length > 0 && (
           <div className="glass-card p-6 rounded-xl">
             <h3 className="text-xl text-white mb-4">Detailed Findings</h3>
             <div className="space-y-4">
-              {analysisResult.findings.map((finding: any, index: number) => {
+              {analysisResult.bugs.map((finding: any, index: number) => {
                 const getSeverityColor = (severity: string) => {
                   if (severity === 'critical') return { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', badge: 'bg-red-500/20' };
                   if (severity === 'high') return { bg: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400', badge: 'bg-orange-500/20' };
@@ -1044,7 +1045,7 @@ const handleAnalyze = async () => {
           </div>
         )}
 
-        {analyzed && (!analysisResult.findings || analysisResult.findings.length === 0) && (
+        {analyzed && (!analysisResult.bugs || analysisResult.bugs.length === 0) && (
           <div className="glass-card p-6 rounded-xl text-center">
             <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
             <h3 className="text-xl text-white mb-2">Great Job!</h3>
